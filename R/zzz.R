@@ -16,7 +16,7 @@
     mp <- Sys.which('mono')
     if (!nzchar(mp)){
       msg <- c("The cross platform, open source .NET framework (mono) is not available.\n", 
-               "Consider to install 'apt-get install mono-runtime' on Linux\n",
+               "Consider to install 'apt-get install mono-runtime libmono-system-data4.0-cil -y' on Linux\n",
                "or download/install from https://www.mono-project.com/.")
       stop(msg)
     }
