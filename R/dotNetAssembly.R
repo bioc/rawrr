@@ -24,7 +24,7 @@
     
     # execute rawrr.exe assembly and keep output string
     rvs <-  "?"
-    if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
+    if (Sys.info()['sysname'] %in% c("Darwin", "Linux") && !exists('RAWRRDOTNET')){
       if (file.exists(exe) && Sys.which('mono') != ""){
         rvs <- system2(Sys.which('mono'), args = c(shQuote(exe)),
                        stdout = TRUE)
@@ -113,6 +113,18 @@ rawrrAssemblyPath <- function(){
 
 .rawrrAssembly <- function(){
   f <- file.path(rawrrAssemblyPath(), 'rawrr.exe')
+
+    if (exists('RAWRRDOTNET')){
+       if (Sys.info()['sysname'] == "Darwin"){
+           file.path(rawrr::rawrrAssemblyPath(), 'osx-x64', 'rawrr') -> f
+       } else if (Sys.info()['sysname'] == "Linux"){
+           file.path(rawrr::rawrrAssemblyPath(), 'linux-x64', 'rawrr') -> f
+       } else {
+           file.path(rawrr::rawrrAssemblyPath(), 'win-x64', 'rawrr.exe') -> f
+       }
+       message("Using '", f, "' ...")
+    }
+
   return(f)
 }
 

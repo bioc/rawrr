@@ -87,7 +87,9 @@
     
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- .rawrrAssembly()
-    
+
+
+
     tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
     tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
     tfstdout <- tempfile(tmpdir=tmpdir, fileext = ".stdout")
@@ -97,8 +99,9 @@
     if(isFALSE(file.exists(tfi))){
             stop(paste0("No input file '", tfi, "' available!"))
     }
+
     
-    if (mono){
+    if (mono && !exists('RAWRRDOTNET')){
       if (system2(command = "/usr/bin/which", args = c("mono"),
             stderr = FALSE, stdout = FALSE) != 0){
         stop("mono is not available; please check https://www.mono-project.com/")
@@ -252,7 +255,8 @@ readIndex <- function (rawfile)
     TRUE
   else FALSE
   exe <- .rawrrAssembly()
-  if (mono) {
+
+  if (mono && !exists('RAWRRDOTNET')){
     con <- textConnection(system2(Sys.which("mono"),
                                   args = c(shQuote(exe),
                                            shQuote(rawfile), "index"),
@@ -283,6 +287,7 @@ filter <- function(rawfile, filter = "ms", precision = 10, tmpdir=tempdir()){
   .checkRawFile(rawfile)
   mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
   exe <- .rawrrAssembly()
+
   
   tfstderr <- tempfile(tmpdir=tmpdir)
   tfo <- tempfile(tmpdir=tmpdir, fileext = ".txt")
@@ -290,6 +295,7 @@ filter <- function(rawfile, filter = "ms", precision = 10, tmpdir=tempdir()){
   
   cmd <- exe
   
+  if (exists('RAWRRDOTNET')){ mono <<- FALSE}
   if (mono){
     rvs <- system2(Sys.which("mono"),
                    args = c(shQuote(exe), shQuote(rawfile),
@@ -621,6 +627,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
   
   mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
   exe <- .rawrrAssembly()
+
   
   tfstdout <- tempfile(fileext = ".stdout", tmpdir = tmpdir)
   tfstderr <- tempfile(fileext = ".stderr", tmpdir = tmpdir)
@@ -629,7 +636,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
   
   system2args <- c(shQuote(rawfile), "chromatogram", shQuote(filter), tfcsv)
   
-  if (mono){
+  if (mono && !exists('RAWRRDOTNET')){
     rvs <- system2("mono", args = c(shQuote(exe), system2args), stdout=tfstdout, stderr=tfstderr)
   }else{
     rvs <- system2(exe, args = system2args, stdout=tfstdout, stderr=tfstderr)
@@ -1589,12 +1596,13 @@ readTrailer <- function(rawfile, label = NULL) {
   
   mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
   exe <- .rawrrAssembly()
+
   
   cmd <- exe
   
   if (is.null(label)){
     # should return all available trailer label
-    if (mono){
+    if (mono && !exists('RAWRRDOTNET')){
       con <- textConnection(system2(Sys.which("mono"),
                                     args = c(shQuote(exe), shQuote(rawfile), "trailer"),
                                     stdout = TRUE))
@@ -1605,7 +1613,7 @@ readTrailer <- function(rawfile, label = NULL) {
     }
   }else{
     # use case for providing a trailer label
-    if (mono){
+    if (mono && !exists('RAWRRDOTNET')){
       con <- textConnection(system2(Sys.which("mono"),
                                     args = c(shQuote(exe), shQuote(rawfile),
                                              "trailer",  shQuote(label)),

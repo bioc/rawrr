@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework> <!-- Or net7.0, depending on your setup -->
+    <AssemblyName>rawrr</AssemblyName>
+    <PublishSingleFile>true</PublishSingleFile> 
+    <SelfContained>true</SelfContained> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ThermoFisher.CommonCore.BackgroundSubtraction" Version="8.0.6" />
+    <PackageReference Include="Thermofisher.CommonCore.MassPrecisionEstimator" Version="8.0.6" />
+    <PackageReference Include="ThermoFisher.CommonCore.RawFileReader" Version="8.0.6" />
+  </ItemGroup>
+</Project>
+
