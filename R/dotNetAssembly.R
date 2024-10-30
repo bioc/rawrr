@@ -254,9 +254,24 @@ installRawrrExe <-
       dir.create(rawrrAssemblyPath(), recursive = TRUE)
     }
     
+    if (exists('RAWRRDOTNET')){
+       sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/"
+       if (Sys.info()['sysname'] == "Darwin"){
+           file.path(sourceUrl, 'osx-x64', 'rawrr') -> sourceUrl
+       } else if (Sys.info()['sysname'] == "Linux"){
+           file.path(sourceUrl, 'linux-x64', 'rawrr') -> sourceUrl
+       } else {
+           file.path(sourceUrl, 'win-x64', 'rawrr.exe') -> sourceUrl
+       }
+      message("Overwrite sourceUrl to ", sourceUrl)
+    }
+
     rawrrAssembly <- .rawrrAssembly()
     
+    dir.create(dirname(rawrrAssembly), recursive = TRUE, showWarnings = FALSE)
+
     rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
+    Sys.chmod(rawrrAssembly, mode = "0777", use_umask = TRUE)
     
     message(sprintf("MD5 %s %s", tools::md5sum(rawrrAssembly), rawrrAssembly))
     rv
