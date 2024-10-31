@@ -3,16 +3,6 @@
 # Test if \code{rawrr.exe} .NET assembly is working
 .isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
-    if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
-      if (Sys.which('mono') == ""){
-        msg <- c("The cross platform, open source .NET framework (mono) is not available.\n", 
-                 "Consider to install 'apt-get install mono-runtime' on Linux\n",
-                 "or download/install from https://www.mono-project.com/.")
-        FUN(msg)
-      }
-    }
-    
-    .checkRawFileReaderDLLs(FUN)
     
     if (isFALSE(file.exists(exe))){
       msg <- c("'rawrr.exe' not found.\n",
@@ -24,15 +14,8 @@
     
     # execute rawrr.exe assembly and keep output string
     rvs <-  "?"
-    if (Sys.info()['sysname'] %in% c("Darwin", "Linux") && !exists('RAWRRDOTNET')){
-      if (file.exists(exe) && Sys.which('mono') != ""){
-        rvs <- system2(Sys.which('mono'), args = c(shQuote(exe)),
-                       stdout = TRUE)
-      }
-    }else{
-      if (file.exists(exe)){
-        rvs <- system2(exe, stdout = TRUE)
-      }
+    if (file.exists(exe)){
+      rvs <- system2(exe, stdout = TRUE)
     }
     
     # expect that output string
@@ -41,11 +24,12 @@
       FUN(msg)
     }
     
-    if(interactive() && isFALSE(.checkDllInMonoPath())){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
     TRUE
   }
 
 
+## TODO: recator
 .rawfileReaderDLLs <- function(){
   # 'ThermoFisher.CommonCore.BackgroundSubtraction.dll',
   c(
@@ -76,20 +60,6 @@ rawrrAssemblyPath <- function(){
   return(d)
 }
 
-#' Check if a file is contained in the environment variable \code{MONO_PATH}.
-#'
-#' @param dll a file name.
-#'
-#' @return a boolean
-#' @export
-.checkDllInMonoPath <- function(dll="ThermoFisher.CommonCore.Data.dll"){
-  monoPath <- Sys.getenv("MONO_PATH", names=TRUE)
-  monoPath <- strsplit(monoPath, .Platform$path.sep)[[1]]
-  any(vapply(monoPath, function(d){
-    file.exists(file.path(d, dll))
-  }, FALSE))  
-}
-
 
 .checkRawFileReaderDLLs <- function(FUN=stop){
   rv <- vapply(.rawfileReaderDLLs(), function(dll){
@@ -112,20 +82,15 @@ rawrrAssemblyPath <- function(){
 
 
 .rawrrAssembly <- function(){
-  f <- file.path(rawrrAssemblyPath(), 'rawrr.exe')
-
-    if (exists('RAWRRDOTNET')){
-       if (Sys.info()['sysname'] == "Darwin"){
-           file.path(rawrr::rawrrAssemblyPath(), 'osx-x64', 'rawrr') -> f
-       } else if (Sys.info()['sysname'] == "Linux"){
-           file.path(rawrr::rawrrAssemblyPath(), 'linux-x64', 'rawrr') -> f
-       } else {
-           file.path(rawrr::rawrrAssemblyPath(), 'win-x64', 'rawrr.exe') -> f
-       }
-       message("Using '", f, "' ...")
+    if (Sys.info()['sysname'] == "Darwin"){
+       file.path(rawrr::rawrrAssemblyPath(), 'osx-x64', 'rawrr') -> f
+    } else if (Sys.info()['sysname'] == "Linux"){
+       file.path(rawrr::rawrrAssemblyPath(), 'linux-x64', 'rawrr') -> f
+    } else {
+       file.path(rawrr::rawrrAssemblyPath(), 'win-x64', 'rawrr.exe') -> f
     }
-
-  return(f)
+    message("Using '", f, "' ...")
+    return(f)
 }
 
 
