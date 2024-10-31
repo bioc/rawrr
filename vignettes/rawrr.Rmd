@@ -252,9 +252,6 @@ fit <- lm(rtFittedAPEX ~ iRTscore)
 The fitted model can then be inspected using standard procedures. Figure 6, shows a visual inspection by plotting observed RTs as a function of iRT score together with the fitted model regression line. The corresponding R-squared indicates that the RTs behave highly linear. This is expected since the iRT peptides were separated on a 20 min linear gradient from 5% buffer B to 35% buffer B using C18 reversed-phase material (the change rate is therefore constant at 1.5% per minute). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide `GAGSSEPVTGLDAK` since it was defined to have a zero score on the iRT scale.
 
 
-
-
-
 ```{r iRTscoreFitPlot, fig.small=TRUE, echo=FALSE, fig.cap="iRT regression. Plot shows observed peptide RTs as a function of iRT scores and fitted regression line of corresponding linear model obtained by ordinary least squares (OLS) regression."}
 # iRTscoreFitPlot
 plot(rtFittedAPEX ~ iRTscore,
@@ -276,6 +273,15 @@ text(iRTscore, rt, iRTmz, pos=1,cex=0.5)
 An extended and dynamic version of the above use cases can be found at (https://fgcz-ms.uzh.ch/~cpanse/rawrr/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of raw files recorded approximately every 12 hours on different Orbitrap mass spectrometers at the FGCZ (some systems have gone out of service in the meantime). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. We re-use the resulting raw files to showcase `rawrr`'s functionality across different Orbitrap instrument models/generations. In order to find the highest-scoring MS2 scan for iRT peptides we now use a simple scoring function implemented in `R` (it counts the number of matching y-ions), instead of running an external search engine. The web page automatically updates every 30 minutes using the most recent two files per system as input data. Be aware that the code is executed in a full parallel fashion (each core processes one raw file) on a Linux server with network-attached storage. 
 
 The R script that renders the html page is also available as supplementary information. The correspoding [R markdown file](https://github.com/fgcz/rawrr/blob/master/vignettes/JPR_supplement.Rmd) is part of the `rawrr` package and can be processed locally after downloading a snapshot of the above described input data from [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542) [@MSV000086542]. In summary, this shows how scalable analysis pipelines can be constructed starting from basic building blocks. It demonstrates that `rawrr`'s data access mechanism works for all types of Orbitrap instrument models.
+
+## Benchmark
+
+```{r benchmark, message = FALSE, fig.cap="Runtime versus n Random selected scans.", fig.small=TRUE}
+1:4 |>
+    lapply(FUN=function(x){rawrr::sampleFilePath() |> rawrr:::.benchmark()}) |>
+    Reduce(f=rbind) -> S
+boxplot(S$runTimeInSec ~ S$count, log='y')
+```
 
 # Conclusions
 
