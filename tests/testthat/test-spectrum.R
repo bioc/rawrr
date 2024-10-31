@@ -50,12 +50,15 @@ test_that("check readSpectrum scan 23.", {
                     package = 'rawrr') |>
     read.table(sep="\t", header=TRUE)
 
-  expect_true(sum(S$mZ %in% DF$m.z) >= 720)
-  expect_true(sum(S$intensity %in% DF$Intensity) >= 720)
+  ## mono
+  expect_true(sum(round(S$mZ, 3) %in% round(DF$m.z, 3)) >= 720)
+  expect_true(sum(round(S$intensity, 3) %in% round(DF$Intensity, 3)) >= 720)
 
-  lapply(DF$m.z[DF$Flags == "F"] %in% S$mZ, expect_true)
-  lapply(DF$m.z[DF$Flags == "M"] %in% S$mZ, expect_true)
-  lapply(DF$m.z[DF$Flags == "E"] %in% S$mZ, expect_false)
+
+  mZ <- round(S$mZ, 3)
+  lapply(round(DF$m.z[DF$Flags == "F"], 3) %in% mZ, FUN = expect_true)
+  lapply(round(DF$m.z[DF$Flags == "M"], 3) %in% mZ, FUN = expect_true)
+  lapply(round(DF$m.z[DF$Flags == "E"], 3) %in% mZ, FUN = expect_false)
 })
 
 

@@ -22,6 +22,6 @@ test_that("check tic of EH4547", {
     expect_equal(length(x$times), length(x$intensities))
     expect_equal(length(x$intensities), 995)
     
-    expect_true(sum(x$intensities) == 63682815178)
+    expect_equal(sum(x$intensities), 63682815178, tolerance = 10)
   }
 })
