@@ -59,10 +59,7 @@ If the environment variable `MONO_PATH` does not include a directory
 containing the RawFileReader .NET assemblies are
 installed in a directory derived by the `rawrr::rawrrAssemblyPath()` function.
 
-```{r installAssemblies, echo=TRUE}
-if (isFALSE(rawrr::.checkDllInMonoPath())){
-  rawrr::installRawFileReaderDLLs()
-}
+```{r installRuntime, echo=TRUE}
 rawrr::installRawrrExe()
 ```
 
@@ -353,7 +350,7 @@ See also [#fgcz/rawDiag/issues/33](https://github.com/fgcz/rawDiag/issues/33).
 }
 ```
 
-# Session information {-}
+# System and session information {-}
 
 ```{r sessioninfo, echo=FALSE}
 sessionInfo()
@@ -361,12 +358,12 @@ sessionInfo()
 
 # Mono information {-}
 
-```{bash monoinfo, echo=TRUE, error=TRUE}
-mono --version
+```{bash dotnet--info, echo=TRUE, error=TRUE}
+dotnet --info
 ```
 
 ```{bash pkginfo, echo=TRUE, error=TRUE}
-pkg-config --cflags --libs mono-2
+dotnet nuget list source
 ```
 
 # References {-}
