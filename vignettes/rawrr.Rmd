@@ -280,7 +280,11 @@ The R script that renders the html page is also available as supplementary infor
 1:4 |>
     lapply(FUN=function(x){rawrr::sampleFilePath() |> rawrr:::.benchmark()}) |>
     Reduce(f=rbind) -> S
-boxplot(S$runTimeInSec ~ S$count, log='y')
+boxplot(runTimeInSec ~ count,
+  data = S,
+  log='y',
+  xlab = 'number of random generated scan ids')
+legend("topleft",  Sys.info()['nodename'], cex = 1)
 ```
 
 # Conclusions
