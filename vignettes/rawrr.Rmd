@@ -276,13 +276,16 @@ The R script that renders the html page is also available as supplementary infor
 
 ## Benchmark
 
-```{r benchmark, message = FALSE, fig.cap="Runtime versus n Random selected scans.", fig.small=TRUE}
-1:4 |>
-    lapply(FUN=function(x){rawrr::sampleFilePath() |> rawrr:::.benchmark()}) |>
+```{r benchmark, message = FALSE, fig.cap="Runtime benchmark using `.rawrr::readSpectrum`.", fig.small=TRUE}
+seq(1, 4) |>
+    lapply(FUN=function(x){rawrr::sampleFilePath() |>
+        rawrr:::.benchmark()}) |>
     Reduce(f=rbind) -> S
+
 boxplot(runTimeInSec ~ count,
   data = S,
-  log='y',
+  log ='y',
+  sub = paste0("Overall runtime took ", sum(runTimeInSec), "seconds."),
   xlab = 'number of random generated scan ids')
 legend("topleft",  Sys.info()['nodename'], cex = 1)
 ```
