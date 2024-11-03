@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 1.15.1
+Version: 1.15.3
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -25,20 +25,20 @@ Suggests:
     rmarkdown,
     tartare (>= 1.5),
     testthat
-Description: This package wraps the functionality
-    of the RawFileReader .NET assembly. Within the R environment,
+Description: This package wraps the functionality of the 
+    Thermo Fisher Scientic RawFileReader .NET 8.0 assembly.
+    Within the R environment,
     spectra and chromatograms are represented by S3 objects.
     The package provides basic functions to download and install
     the required third-party libraries.
     The package is developed, tested, and used at the Functional
     Genomics Center Zurich, Switzerland.
 License: GPL-3
-SystemRequirements: mono-runtime 4.x or higher (including System.Data library)
-    on Linux/macOS, .Net Framework (>= 4.5.1) on Microsoft Windows.
+SystemRequirements: .NET 8.0 
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
 NeedsCompilation: no
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 biocViews: MassSpectrometry, Proteomics, Metabolomics, Infrastructure, Software
 VignetteBuilder: knitr

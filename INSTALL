@@ -1,66 +1,33 @@
 # System requirements
 
-## Linux (debian:10/ubuntu:20.04)
+The `rawrr` executable will run out of the box. 
+
+I you want to build on your own follow the text below.
+
+## Compile and Link yourself
 
 In case you prefer to compile `rawrr.exe` from C# source code, please install
-the mono compiler and xbuild by installing the following Linux packages:
+the .NET 8.0
+
+### Linux (debian:10/ubuntu:20.04) (debian:12/ubuntu:24)
+
 
 ```{sh}
-sudo apt-get install mono-mcs mono-xbuild
+## DEPRECIATED: sudo apt-get install mono-mcs mono-xbuild
+sudo apt-get install dotnet-sdk-8.0
 ```
 
-Otherwise, to execute the precompiled code, the following Linux packages are
-sufficient:
+### macOS (Catalina/BigSur/.../Sequoia)
 
-```{sh}
-sudo apt-get install mono-runtime libmono-system-data4.0-cil -y
-```
+https://dotnet.microsoft.com/en-us/download
 
-## macOS (Catalina/BigSur)
+### Microsoft Windows
 
-```
-brew install mono
-```
+https://dotnet.microsoft.com/en-us/download
 
-or install from
-
-https://www.mono-project.com/
-
-## Microsoft Windows
-
-Running the `rawrr.exe` will run out of the box.
-
-If the native C# compiler is not available install mono from:
-
-https://www.mono-project.com/
-
-
-# Install the .NET assemblies 
+## Install the .NET assemblies 
 
 assemblies aka Common Intermediate Language bytecode
-
-the following files are required in 
-`r tools::R_user_dir("rawrr", which='cache')`
-or in the `MONO_PATH`
-
-```
-ThermoFisher.CommonCore.Data.dll
-ThermoFisher.CommonCore.MassPrecisionEstimator.dll
-ThermoFisher.CommonCore.RawFileReader.dll
-```
-
-The download and install can be done on all platforms using the command:
-`r rawrr::installRawFileReaderDLLs()`
-
-The in the package included C# source code that can compile into a rawrr.exe
-file by calling `r rawrr:::buildRawrrExe()`. (is executed when the package
-is loaded)
-
-if no C# compile and build tool is available, run
-
-`r rawrr::installRawrrExe()` to download the rawrr.exe assembly.
-
-On Windows, the decimal symbol has to be configured as a '.'!
 
 In general, ThermoFisher.CommonCore dlls can be obtained through:
 
@@ -73,11 +40,34 @@ by contacting Jim Shofstahl using
 jim.Shofstahl@thermofisher.com
 
 
+## build
+
+* source nuget pkgs
+
+* add libraries
+
+* (cross)-dcompile and link
+
+```
+dotnet publish rawrr-dotnet.csproj --os osx -a x64 --output /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/osx-x64
+dotnet publish rawrr-dotnet.csproj --os win -a x64 --output /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/win-x64
+dotnet publish rawrr-dotnet.csproj --os linux -a x64 --output /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/linux-x64
+
+
+## generates a ~110MB BLOB
+dotnet publish -c Release -r linux-x64 -p PublishReadyToRun=true
+dotnet publish -c Release -r win-x64 -p PublishReadyToRun=true
+```
+
+
+## Docker
+
 The `Dockerfile` performing `R CMD build` and `R CMD check` requires
 
 ```
 from bioconductor/bioconductor_docker:devel
 run apt-get update && apt-get install mono-mcs mono-xbuild -y
-run apt-get install texlive-base texlive-latex-extra texinfo texlive-fonts-extra -y
+run apt-get install dotnet-sdk-8.0
 run R -q -e "BiocManager::install(c('BiocStyle', 'ExperimentHub', 'knitr', 'protViz', 'rmarkdown', 'tartare', 'testthat'))"
 ```
+

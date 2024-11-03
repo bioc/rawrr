@@ -1,20 +1,17 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework> <!-- Or net7.0, depending on your setup -->
     <AssemblyName>rawrr</AssemblyName>
-    <OutputPath>bin\</OutputPath>
+    <PublishSingleFile>true</PublishSingleFile> 
+    <SelfContained>true</SelfContained> 
   </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="rawrr.cs" />
+    <PackageReference Include="ThermoFisher.CommonCore.BackgroundSubtraction" Version="8.0.6" />
+    <PackageReference Include="Thermofisher.CommonCore.MassPrecisionEstimator" Version="8.0.6" />
+    <PackageReference Include="ThermoFisher.CommonCore.RawFileReader" Version="8.0.6" />
   </ItemGroup>
-
-  <Target Name="Build">
-    <MakeDir Directories="$(OutputPath)" Condition="!Exists('$(OutputPath)')" />
-    <Csc Sources="@(Compile)" OutputAssembly="$(OutputPath)$(AssemblyName).exe" References="@(Reference)" AdditionalLibPaths="$(AdditionalLibPaths)" Optimize="true" Platform="anycpu"/>
-  </Target>
-
-  <ItemGroup>
-    <Reference Include="ThermoFisher.CommonCore.Data.dll"/>
-    <Reference Include="ThermoFisher.CommonCore.MassPrecisionEstimator.dll"/>
-    <Reference Include="ThermoFisher.CommonCore.RawFileReader.dll"/>
- </ItemGroup>
 </Project>
+

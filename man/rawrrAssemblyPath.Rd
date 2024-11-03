@@ -16,5 +16,5 @@ Derives the path where all .NET assemblies are stored.
 rawrrAssemblyPath()
 }
 \seealso{
-\code{installRawFileReaderDLLs} and \code{installRawrrExe}
+\code{installRawrrExe} and  \code{buildRawrrExe}
 }

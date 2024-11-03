@@ -5,7 +5,7 @@
 \alias{rawrr-package}
 \title{rawrr: Direct Access to Orbitrap Data and Beyond}
 \description{
-This package wraps the functionality of the RawFileReader .NET assembly. Within the R environment, spectra and chromatograms are represented by S3 objects. The package provides basic functions to download and install the required third-party libraries. The package is developed, tested, and used at the Functional Genomics Center Zurich, Switzerland.
+This package wraps the functionality of the Thermo Fisher Scientic RawFileReader .NET 8.0 assembly. Within the R environment, spectra and chromatograms are represented by S3 objects. The package provides basic functions to download and install the required third-party libraries. The package is developed, tested, and used at the Functional Genomics Center Zurich, Switzerland.
 }
 \seealso{
 Useful links:
@@ -21,6 +21,11 @@ Useful links:
 Authors:
 \itemize{
   \item Tobias Kockmann \email{tobias.kockmann@fgcz.ethz.ch} (\href{https://orcid.org/0000-0002-1847-885X}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item Leonardo Schwarz \email{Leonardo.Schwarz@fgcz.ethz.ch} (\href{https://orcid.org/0009-0003-1828-6924}{ORCID}) [contributor]
 }
 
 }

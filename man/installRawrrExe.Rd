@@ -3,15 +3,18 @@
 \name{installRawrrExe}
 \alias{installRawrrExe}
 \alias{rawrr.exe}
-\title{Download and install the \code{rawrr.exe} console application}
+\title{Download \code{rawrr} assembly}
 \usage{
 installRawrrExe(
-  sourceUrl = "https://github.com/fgcz/rawrr/releases/download/1.9.2/rawrr.1.9.2.exe",
+  sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/",
+  force = FALSE,
   ...
 )
 }
 \arguments{
 \item{sourceUrl}{url of \code{rawrr.exe} assembly.}
+
+\item{force}{if \code{TRUE} it will overwrite the assembly}
 
 \item{...}{other parameter for \code{download.file}.}
 }
@@ -21,15 +24,12 @@ failure. For the "wget" and "curl" methods this is the status code returned
 by the external program.
 }
 \description{
-downloads and installs the \code{rawrr.exe} .Net assembly in 
+downloads and installs the \code{rawrr.exe} .NET assembly in
 the directory provided by \code{rawrrAssemblyPath()}.
 }
 \details{
-The console application \code{rawrr.exe} is used by the package's
+The console application \code{rawrr} is used by the package's
 reader functions through a \link{system2} call.
-}
-\references{
-\doi{10.1021/acs.jproteome.0c00866}
 }
 \seealso{
 \link{buildRawrrExe}

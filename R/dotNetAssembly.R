@@ -3,49 +3,32 @@
 # Test if \code{rawrr.exe} .NET assembly is working
 .isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
-    if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
-      if (Sys.which('mono') == ""){
-        msg <- c("The cross platform, open source .NET framework (mono) is not available.\n", 
-                 "Consider to install 'apt-get install mono-runtime' on Linux\n",
-                 "or download/install from https://www.mono-project.com/.")
-        FUN(msg)
-      }
-    }
-    
-    .checkRawFileReaderDLLs(FUN)
-    
+
     if (isFALSE(file.exists(exe))){
       msg <- c("'rawrr.exe' not found.\n",
                "Run 'rawrr::installRawrrExe()'.",
                " For more information, type '?rawrr.exe'.")
       FUN(msg)
     }
-    
-    
+
     # execute rawrr.exe assembly and keep output string
     rvs <-  "?"
-    if (Sys.info()['sysname'] %in% c("Darwin", "Linux") && !exists('RAWRRDOTNET')){
-      if (file.exists(exe) && Sys.which('mono') != ""){
-        rvs <- system2(Sys.which('mono'), args = c(shQuote(exe)),
-                       stdout = TRUE)
-      }
-    }else{
-      if (file.exists(exe)){
-        rvs <- system2(exe, stdout = TRUE)
-      }
+    if (file.exists(exe)){
+      rvs <- system2(exe, stdout = TRUE)
     }
-    
+
     # expect that output string
     if (rvs != "No RAW file specified!"){
       msg <- ("The 'rawrr.exe' dot Net assembly is not working!")
       FUN(msg)
     }
-    
-    if(interactive() && isFALSE(.checkDllInMonoPath())){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+
+    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
     TRUE
   }
 
 
+## TODO: refactor
 .rawfileReaderDLLs <- function(){
   # 'ThermoFisher.CommonCore.BackgroundSubtraction.dll',
   c(
@@ -58,49 +41,27 @@
 #' Derives the path where all .NET assemblies are stored.
 #'
 #' @return path
-#' @export rawrrAssemblyPath
-#' @seealso \code{installRawFileReaderDLLs} and \code{installRawrrExe}
+#' @seealso \code{installRawrrExe} and  \code{buildRawrrExe}
 #'
 #' @examples
 #' rawrrAssemblyPath()
-rawrrAssemblyPath <- function(){
-  libdir <- tools::R_user_dir("rawrr", which='cache')
-  d <- file.path(libdir, 'rawrrassembly')
-  
-  if (interactive()){
-    if (isFALSE(dir.exists(d))){
-      #msg <- sprintf("rawrr .NET assemply path '%s' is not existing!", d)
-      #warning(msg)
-    }
-  }
-  return(d)
-}
-
-#' Check if a file is contained in the environment variable \code{MONO_PATH}.
-#'
-#' @param dll a file name.
-#'
-#' @return a boolean
 #' @export
-.checkDllInMonoPath <- function(dll="ThermoFisher.CommonCore.Data.dll"){
-  monoPath <- Sys.getenv("MONO_PATH", names=TRUE)
-  monoPath <- strsplit(monoPath, .Platform$path.sep)[[1]]
-  any(vapply(monoPath, function(d){
-    file.exists(file.path(d, dll))
-  }, FALSE))  
+rawrrAssemblyPath <- function(){
+  dirname(.rawrrAssembly())
 }
 
 
+## TODO: refactor
 .checkRawFileReaderDLLs <- function(FUN=stop){
   rv <- vapply(.rawfileReaderDLLs(), function(dll){
     userFileDllPath <- file.path(rawrrAssemblyPath(), dll)
-    dllExists <- file.exists(userFileDllPath) || .checkDllInMonoPath(dll)
+    dllExists <- file.exists(userFileDllPath)
     if (isFALSE(dllExists)){
       message(sprintf("'%s' is missing.", dll))
     }
     return(dllExists)
   }, FALSE)
-  
+
   if (isFALSE(all(rv)) && TRUE){
     FUN("'ThermoFisher.CommonCore.*.dll' files are not available on the system.\n",
          "Run 'rawrr::installRawFileReaderDLLs()' or setenv MONO_PATH to ",
@@ -111,175 +72,235 @@ rawrrAssemblyPath <- function(){
 }
 
 
+#' @importFrom tools R_user_dir
 .rawrrAssembly <- function(){
-  f <- file.path(rawrrAssemblyPath(), 'rawrr.exe')
+  libdir <- tools::R_user_dir("rawrr", which='cache')
+  d <- file.path(libdir, 'rawrrassembly')
 
-    if (exists('RAWRRDOTNET')){
-       if (Sys.info()['sysname'] == "Darwin"){
-           file.path(rawrr::rawrrAssemblyPath(), 'osx-x64', 'rawrr') -> f
-       } else if (Sys.info()['sysname'] == "Linux"){
-           file.path(rawrr::rawrrAssemblyPath(), 'linux-x64', 'rawrr') -> f
-       } else {
-           file.path(rawrr::rawrrAssemblyPath(), 'win-x64', 'rawrr.exe') -> f
-       }
-       message("Using '", f, "' ...")
-    }
-
-  return(f)
+  if (Sys.info()['sysname'] == "Darwin"){
+    file.path(d, 'osx-x64', 'rawrr') -> f
+  } else if (Sys.info()['sysname'] == "Linux"){
+    file.path(d, 'linux-x64', 'rawrr') -> f
+  } else {
+    file.path(d, 'win-x64', 'rawrr.exe') -> f
+  }
+    return(f)
 }
 
 
 #' URL for Thermo Fisher .NET assemblies
 #'
 #' @return an URL
-#' @export
 .thermofisherlsmsUrl <- function(){
-  "https://github.com/thermofisherlsms/RawFileReader/raw/main/Libs/Net471/"
+ #  "https://github.com/thermofisherlsms/RawFileReader/tree/main/Libs/NetCore/Net8/"
+    "https://github.com/thermofisherlsms/RawFileReader/raw/refs/heads/main/Libs/NetCore/Net8/"
 }
 
 
-#' Download and install the New RawFileReader from Thermo Fisher Scientific .Net
-#' assemblies i
-#' 
-#' @description 
-#' Download and install the New RawFileReader from Thermo Fisher Scientific .Net
-#' assemblies in 
-#' the directory provided by \code{rawrrAssemblyPath()}.
-#' 
+#' Download and install the Thermo Fisher Scientific .NET 8.0 nupkgs
 #'
-#' @param ... other parameter for \code{download.file}
-#' @param sourceUrl url of New RawFileReader from Thermo Fisher Scientific
-#' assemblies.
+#' @param sourceUrl url of nupkgs.
+#' @param force if \code{TRUE} it will overwrite the pkgs.
 #'
 #' @aliases Thermo
 #' @aliases ThermoFisher
 #' @aliases ThermoFisherScientific
-#' 
-#' @details 
-#' The console application assembly \code{rawrr.exe} requires three
-#' assemplies:
-#' \itemize{
-#' \item {\code{ThermoFisher.CommonCore.Data.dll}, }
-#' \item{\code{ThermoFisher.CommonCore.MassPrecisionEstimator.dll}, and}
-#' \item{ThermoFisher.CommonCore.RawFileReader.dll}
-#' }.
-#' 
-#' The \code{rawrr.exe} assembly can be built from C# source code by using the
-#' \code{msbuild} tool shipped by the \url{https://www.mono-project.com} or by
-#' Microsoft's .NET SDK \url{https://dotnet.microsoft.com} on Linux, Microsoft,
-#' and macOS.
 #'
-#' If no build tool and C# compiler (\code{csc} or \code{msc}) are available or
-#' the build process fails, you can download \code{rawrr.exe} assembly from the
-#' authors' site.
-#' 
-#' @seealso \link{buildRawrrExe} and \link{installRawrrExe}
-#' 
-#' @references \itemize{
-#'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
-#'   \item{\url{https://planetorbitrap.com/rawfilereader}}
-#'   \item{\doi{10.1021/acs.jproteome.0c00866}}
-#' }
-#' 
-#' @author Christian Panse <cp@fgcz.ethz.ch>, 2021
-#' 
+#' @author Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
+#'
 #' @return An (invisible) vector of integer code, 0 for success and non-zero for
 #' failure. For the "wget" and "curl" methods this is the status code returned
 #' by the external program.
 #'
-#' @export installRawFileReaderDLLs
 #' @importFrom utils download.file
-#' 
-#' @examples 
-#' # to install all assemblies
-#' \donttest{
-#' rawrr::installRawFileReaderDLLs() 
-#' rawrr::buildRawrrExe() || rawrr::installRawrrExe()
-#' }
-# TODO(cp): rename installThermoFisherScientificRawFileReaderAssemblyDLLs()
-installRawFileReaderDLLs <-
-  function(sourceUrl = .thermofisherlsmsUrl(), ...){
-    
+.downloadNupkgs <- function(sourceUrl = .thermofisherlsmsUrl(), force = TRUE){
+
     rawfileReaderDLLsPath <- rawrrAssemblyPath()
-    
-    if (isTRUE(dir.exists(rawfileReaderDLLsPath))){
-      msg <- sprintf("removing DLL files in directory '%s'", rawfileReaderDLLsPath)
-      message(msg)
-      
-      file.remove(file.path(rawrrAssemblyPath(),
-                            list.files(rawrrAssemblyPath(), pattern="\\.dll$")))
-    }
-    
+
     if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
       dir.create(rawfileReaderDLLsPath, recursive = TRUE)
     }
-    
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-    
-    rv <- vapply(.rawfileReaderDLLs(), function(dll){
-      destfile <- file.path(rawfileReaderDLLsPath, dll)
-      download.file(file.path(sourceUrl, dll),
-                    destfile=destfile, mode='wb', ...)
-    }, 0) 
+
+    if (isTRUE(dir.exists(rawfileReaderDLLsPath))){
+      msg <- sprintf("removing nupkgs files in directory '%s'", rawfileReaderDLLsPath)
+      message(msg)
+
+      file.remove(file.path(rawrrAssemblyPath(),
+                            list.files(rawrrAssemblyPath(), pattern="\\.nupkg$")))
+    }
+
+    c('ThermoFisher.CommonCore.BackgroundSubtraction.8.0.6.nupkg',
+      'ThermoFisher.CommonCore.RandomAccessReaderPlugin.8.0.6.nupkg',
+      'ThermoFisher.CommonCore.Data.8.0.6.nupkg',
+      'ThermoFisher.CommonCore.RawfileReader.8.0.6.nupkg',
+      'ThermoFisher.CommonCore.MassPrecisionEstimator.8.0.6.nupkg') |> vapply(FUN = function(nupkg){
+      destfile <- file.path(rawfileReaderDLLsPath, nupkg)
+      download.file(file.path(sourceUrl, nupkg),
+                    destfile = destfile, mode='wb')
+    }, FUN.VALUE = 0) -> rv
+
     rv
   }
 
+# dotnet nuget add source /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/
+# dotnet nuget remove source "Package source 1"
+# dotnet nuget list source
+.addNupkgSource <- function(){
+  system2('dotnet', args = c('nuget', 'add', 'source', rawrrAssemblyPath()))
+}
+
+.copySourceCode <- function(dir) {
+  dst <- dir
+  sourceCodeFiles <- c("rawrrassembly/rawrr.cs", "rawrrassembly/rawrr.csproj")
+  packagedir <- system.file(package = 'rawrr')
 
 
-#' Download and install the \code{rawrr.exe} console application
-#' 
-#' @description downloads and installs the \code{rawrr.exe} .Net assembly in 
+  sourceCodeFiles |>
+    lapply(function(f){
+      src <- file.path(packagedir, f)
+      message("Copying ", basename(src), " to ", dst)
+      stopifnot(file.copy(src, dst, overwrite = TRUE))
+  })
+}
+
+# dotnet add package ThermoFisher.CommonCore.MassPrecisionEstimator
+.addPackages <- function(dir, version = "8.0.6"){
+  tempOut <- tempfile(pattern = "rawrr.add.packages.stdout.", tmpdir = dir, fileext = ".txt")
+  tempErr <- tempfile(pattern = "rawrr.add.packages.stderr.", tmpdir = dir, fileext = ".txt")
+   setwd(dir)
+    c('ThermoFisher.CommonCore.BackgroundSubtraction',
+      'ThermoFisher.CommonCore.RandomAccessReaderPlugin',
+      'ThermoFisher.CommonCore.Data',
+      'ThermoFisher.CommonCore.RawfileReader',
+      'ThermoFisher.CommonCore.MassPrecisionEstimator') |>
+   vapply(FUN = function(nupkg){
+     system2('dotnet', args = c('add', 'package', nupkg, '-v', version),
+       stdout = tempOut,
+       stderr = tempErr) -> rv
+     if (interactive()){
+	if (rv != 0){
+	  file.show(tempOut)
+	  file.show(tempErr)
+	}
+     }
+     rv
+   }, FUN.VALUE = 0)
+}
+
+.clean <- function(){
+  message("Removing ", .rawrrAssembly())
+  file.remove(.rawrrAssembly())
+}
+
+.build <- function(dir){
+################################################################################
+  setwd(dir)
+
+  tempOut <- tempfile(pattern = "rawrr.build.stdout.", tmpdir = dir, fileext = ".txt")
+  tempErr <- tempfile(pattern = "rawrr.build.stderr.", tmpdir = dir, fileext = ".txt")
+
+  message("Running build ...")
+  message("Write stdout to", tempOut)
+  message("Write stderr to", tempErr)
+
+  system2('dotnet', args = c('publish', '-c', 'Release', '-a', 'x64', '-p',
+    'PublishReadyToRun=true', '-o', dirname(.rawrrAssembly())),
+    stdout = tempOut,
+    stderr = tempErr) -> rv
+
+
+  if (rv == 0){
+    message("Build succesfully done.")
+  }else{
+    message("Build error.")
+    if (interactive()){
+	file.show(tempOut)
+	file.show(tempErr)
+    }
+  }
+}
+
+#' Download \code{rawrr} assembly
+#'
+#' @description downloads and installs the \code{rawrr.exe} .NET assembly in
 #' the directory provided by \code{rawrrAssemblyPath()}.
-#' 
-#' @details The console application \code{rawrr.exe} is used by the package's
+#'
+#' @details The console application \code{rawrr} is used by the package's
 #' reader functions through a \link{system2} call.
-#' 
+#'
 #' @param sourceUrl url of \code{rawrr.exe} assembly.
+#' @param force if \code{TRUE} it will overwrite the assembly
 #' @param ... other parameter for \code{download.file}.
 #'
 #' @return An integer code, 0 for success and non-zero for
 #' failure. For the "wget" and "curl" methods this is the status code returned
 #' by the external program.
 #' @seealso \link{buildRawrrExe}
-#' @references \doi{10.1021/acs.jproteome.0c00866}
 #' @aliases rawrr.exe
-#' @export installRawrrExe
+#' @export
 installRawrrExe <-
-  function (sourceUrl = "https://github.com/fgcz/rawrr/releases/download/1.9.2/rawrr.1.9.2.exe",
-            ...)
-  {
-   
-    
-    if (isFALSE(dir.exists(rawrrAssemblyPath()))){
-      dir.create(rawrrAssemblyPath(), recursive = TRUE)
-    }
-    
-    rawrrAssembly <- .rawrrAssembly()
-    
-    rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
-    
-    message(sprintf("MD5 %s %s", tools::md5sum(rawrrAssembly), rawrrAssembly))
-    rv
+  function (sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/",
+            force = FALSE,
+            ...) {
+  rawrrAssembly <- .rawrrAssembly()
+
+  if (isTRUE(file.exists(rawrrAssembly)) && isFALSE(force)){
+     if (interactive()){
+	message("The rawrr assembly exists. Have a lot of fun!")
+     }
+     return()
   }
 
+  if (isTRUE(file.exists(rawrrAssembly)) && isTRUE(force)){
+	## TODO: if interactive ask to override
+        if (interactive()){
+            response <- readline(prompt = sprintf("Assembly exists. Do you want to overwrite it? [Y/n]: "))
+            if (tolower(response) == "y"){
+
+            }else{
+                return()
+            }
+	}
+  }
+
+  if (isFALSE(dir.exists(rawrrAssemblyPath()))) {
+        dir.create(rawrrAssemblyPath(), recursive = TRUE)
+  }
+
+  if (Sys.info()["sysname"] == "Darwin") {
+            sourceUrl <- file.path(sourceUrl, "osx-x64", "rawrr")
+  }
+  else if (Sys.info()["sysname"] == "Linux") {
+            sourceUrl <- file.path(sourceUrl, "linux-x64", "rawrr")
+  }
+  else {
+            sourceUrl <- file.path(sourceUrl, "win-x64", "rawrr.exe")
+  }
+  message("Overwrite sourceUrl to ", sourceUrl)
+
+
+  dir.create(dirname(rawrrAssembly), recursive = TRUE, showWarnings = FALSE)
+  rv = download.file(sourceUrl, destfile = rawrrAssembly, mode = "wb",
+        ...)
+  Sys.chmod(rawrrAssembly, mode = "0777", use_umask = TRUE)
+
+  message(sprintf("MD5 %s %s", tools::md5sum(rawrrAssembly), rawrrAssembly))
+
+  rv
+}
+
 .buildOnLoad <- function(){
-  
   # nothing to do
   if (file.exists(.rawrrAssembly())){
     return()
   }
-  
-  # check Thermo DLLs
-  if(isFALSE(.checkRawFileReaderDLLs(message))){
-    return()
-  }
 
-  if (Sys.which("msbuild") == "" && Sys.which("xbuild") == "")
+  if (Sys.which("dotnet") == "")
   {
-    msg <- c("Could not find 'msbuild' or 'xbuild' in the path. Therefore, ",
+    msg <- c("Could not find 'dotnet' in the path. Therefore, ",
          "it is not possible to build the 'rawrr.exe' assembly from",
          " source code.\nTry to run rawrr::installRawrrExe().")
-    message(msg)
+    warning(msg)
     return()
   }
 
@@ -287,118 +308,71 @@ installRawrrExe <-
 }
 
 
-.determineAdditionalLibPath <- function(){
-  monoPaths <- strsplit(Sys.getenv("MONO_PATH"), .Platform$path.sep)[[1]]
-  pgkPath <- rawrrAssemblyPath()
-  
-  dlls <- .rawfileReaderDLLs()
-  
-  rv <- lapply(c(pgkPath, monoPaths, '/usr/local/lib'), function(d){
-    if(all(vapply(dlls, function(x){file.exists(file.path(d, x))}, TRUE))){
-      return(d)
-    }else{NULL}
-  })
-  
-  rv <- rv[!vapply(rv, is.null, TRUE)]
-  
-  if(length(rv) > 0)
-    return (rv[[1]])
-  
-  NULL
-}
-
 #' Build \code{rawrr.exe} console application.
+#'
+#' @description builds \code{rawrr.exe} file from C# source code requiring
+#' .NET SDK. The console application \code{rawrr.exe}
+#' is used by the package's reader functions through a \link{system2} call
+#' or a \link{textConnection}.
 #' 
-#' @description builds \code{rawrr.exe} file from C# source code requiring 
-#' xbuild or msbuild tools. The console application \code{rawrr.exe}
-#' is used by the package's reader functions through a \link{system2} call.
-#' 
-#' @details The rawrr package implementation consists of two language layers,
-#' the top R layer and the hidden C# layer. Specifically, R functions requesting
-#' access to data stored in binary raw files invoke compiled C# wrapper methods
-#' using a \link{system2} call. Calling a wrapper method typically results in the
-#' execution of methods defined in the RawFileReader dynamic link library
-#' provided by Thermo Fisher Scientific. Our precompiled wrapper methods are
-#' bundled in the \code{rawrr.exe} executable file (.NET assembly) and shipped
-#' with the released R package. Running \code{rawrr.exe} requires the
-#' \url{https://www.mono-project.com/} environment on non-Microsoft
-#' operating systems. Mono is a cross platform, open source .NET framework.
-#' On Microsoft Windows the Microsoft .NET framework is typically already
-#' installed and sufficient. Our package also contains the C# source code
-#' \code{rawrr.cs}.
-#' In order to return extracted data back to the R layer we use file I/O.
-#' More specifically, the extracted information is written to a temporary
-#' location on the harddrive, read back into memory and parsed into R  objects.
-#' 
-#' @author Tobias Kockmann, Christian Panse <cp@fgcz.ethz.ch>, 2021
-#' 
-#' @seealso \link{installRawrrExe} and \link{installRawFileReaderDLLs}
-#' 
+#' To use this function, ensure that the local RawFileReader NuGet packages 
+#' are added to the NuGet source list. You can accomplish this by 
+#' downloading the necessary packages with 
+#' \code{rawrr:::.downloadNupkgs()} and subsequently running 
+#' \code{rawrr:::.addNupkgSource()}.
+#'
+#' @author Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
+#'
+#' @seealso \link{installRawrrExe}
+#'
 #' @references \itemize{
-#'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
-#'   \item{\url{https://planetorbitrap.com/rawfilereader}}
+#'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}, 2020}
+#'   \item{\url{https://planetorbitrap.com/rawfilereader}, 2020}
+#'   \item{\url{https://github.com/thermofisherlsms/RawFileReader/}, 2024}
 #'   \item{\url{https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/advanced}}
 #'   \item{\doi{10.1021/acs.jproteome.0c00866}}
 #' }
-#' 
+#'
 #' @return the return value of the system2 command.
-#' @export buildRawrrExe
+#' @export
 buildRawrrExe <- function(){
   packagedir <- system.file(package = 'rawrr')
- 
-  if (isFALSE(dir.exists(rawrrAssemblyPath()))){
-    dir.create(rawrrAssemblyPath(), recursive = TRUE)
-  }
-  
-  if (isFALSE(.checkRawFileReaderDLLs())){
-    return()
-  }
-  
+  buildDir <- tempdir()
 
-  
-  if (Sys.which("msbuild") == "" && Sys.which("xbuild") == "")
+  if (Sys.which("dotnet") == "")
   {
-    msg <- c("Could not find 'msbuild' or 'xbuild' in the path. Therefore, ",
+    msg <- c("Could not find 'dotnet' in the path. Therefore, ",
          "it is not possible to build the 'rawrr.exe' assembly from",
          " source code.\nTry to run rawrr::installRawrrExe().")
     stop(msg)
   }
-  
-  cwd <- getwd()
-  setwd(file.path(packagedir, 'rawrrassembly'))
-  
-  cmd <- ifelse(Sys.which("msbuild") != "", "msbuild", "xbuild")
 
-  # https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/advanced#additionallibpaths
-  additionalLibPath <- .determineAdditionalLibPath()
-  
-  buildLog <- tempfile("rawrr_build.log.",
-                       tmpdir = rawrrAssemblyPath())
-  
-  cmdArgs <- sprintf("/p:OutputPath=%s/ /p:AdditionalLibPaths=%s /v:diagnostic /flp:LogFile=%s rawrr.csproj",
-                     shQuote(rawrrAssemblyPath()),
-                     shQuote(additionalLibPath),
-                     shQuote(buildLog))
+  message("Building rawrr assembly using .NET 8.0 ...")
 
-  message("Attempting to build 'rawrr.exe', one time setup ...")
-  rv <- system2 (cmd, cmdArgs, wait=TRUE, stderr=TRUE, stdout=TRUE)
-  
-  if (rv <- any(grepl("Build succeeded.", rv))
-      && file.exists(.rawrrAssembly())){
-    msg <- sprintf("'rawrr.exe' successfully built in \n'%s'.
-The build report should have been saved in\n'%s'.", .rawrrAssembly(), buildLog)
-    message(msg)
-  }else{
-    err <- sprintf("Building 'rawrr.exe' failed. For details see the build report, supposed to be saved in:
-'%s'
-Call 'rawrr::installRawrrExe()' to download and install a precompiled version
-from a remote location. Note this requires internet connection.",
-                   buildLog)
-    setwd(cwd)
-    stop(err)
+  if (isFALSE(dir.exists( rawrrAssemblyPath() ))){
+    dir.create(rawrrAssemblyPath(), recursive = TRUE)
   }
-  setwd(cwd)
-  rv
+
+  .copySourceCode(dir = buildDir)
+
+  (system2("dotnet", args =c('nuget', 'list', 'source'),
+    stdout = TRUE) |>
+    grepl(pattern = "rawrrassembly") |>
+    sum()  >= 1) -> nugetPkgsPresent
+
+  if(nugetPkgsPresent){
+    warning("Have you downloaded the 'thermofisherlsms/RawFileReader' NuGet packages? \n",
+    "If not, please consider executing the methods:\n",
+    "  -> rawrr:::.downloadNupkgs()\n",
+    "  -> rawrr:::.addNupkgSource()\n",
+    "These steps should be performed once to ensure proper setup.")
+    # .downloadNupkgs()
+    # .addNupkgSource()
+  }
+
+  .addPackages(dir = buildDir)
+  .build(dir = buildDir)
+  .isAssemblyWorking()
 }
 
 .eulaPath <- function(){
@@ -409,12 +383,12 @@ from a remote location. Note this requires internet connection.",
   licenseFile <- file.path(system.file(package = 'rawrr'), 'rawrrassembly',
                            'RawFileReaderLicense.txt')
   stopifnot(file.exists(licenseFile))
-  
+
   eulaFile <- .eulaPath()
-  
+
   msg <- c("# By changing the setting below to TRUE you are accepting ",
            "the Thermo License agreement.")
-  
+
   if (!file.exists(eulaFile)){
     file.show(licenseFile)
     fmt <- "Do you accept the Thermo License agreement '%s'? [Y/n]: "
@@ -428,13 +402,13 @@ from a remote location. Note this requires internet connection.",
       writeLines(paste(msg, paste0("# ", date()), "eula=true", sep="\n"),
                  fileConn)
       close(fileConn)
-      
+
       return(TRUE %in% grepl("eula=true", tolower(readLines(eulaFile))))
     }
   }else{
     return(TRUE %in% grepl("eula=true", tolower(readLines(eulaFile))))
   }
-  
+
   msg <- ("You have to accept the Thermo Fisher Scientific License agreement!")
   stop(msg)
 }

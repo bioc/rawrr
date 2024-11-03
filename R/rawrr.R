@@ -1,6 +1,7 @@
 .monoInfo <-function(){
     # system2("mcs", "--version", stdout = TRUE)
-    system2("mono", "-V", stdout = TRUE)
+    # system2("mono", "-V", stdout = TRUE)
+    system2("dotnet", "--version", stdout = TRUE)
 }
 
 .checkReaderFunctions <- function(rawfile = sampleFilePath()){
@@ -85,10 +86,7 @@
   function(rawfile, input, rawrrArgs="scans", tmpdir=tempdir(),
            removeTempfile=TRUE){
     
-    mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- .rawrrAssembly()
-
-
 
     tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
     tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
@@ -100,23 +98,7 @@
             stop(paste0("No input file '", tfi, "' available!"))
     }
 
-    
-    if (mono && !exists('RAWRRDOTNET')){
-      if (system2(command = "/usr/bin/which", args = c("mono"),
-            stderr = FALSE, stdout = FALSE) != 0){
-        stop("mono is not available; please check https://www.mono-project.com/")
-      }
-      rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
-                                                 shQuote(rawfile),
-                                                 rawrrArgs, shQuote(tfi),
-                                                 shQuote(tfo)),
-                     stdout = tfstdout,
-                     stderr = tfstderr)
-    }else{
-      rvs <- system2(exe, args = c( shQuote(rawfile),
-                                    rawrrArgs, shQuote(tfi),
-                                    shQuote(tfo)), )
-    }
+    rvs <- system2(exe, args = c( shQuote(rawfile), rawrrArgs, shQuote(tfi), shQuote(tfo)), )
     
     if (isFALSE(file.exists(tfo))){
       errmsg <- sprintf("Rcode file to parse does not exist. '%s' failed for an unknown reason.
@@ -214,7 +196,7 @@ is.rawrrSpectrumSet <- function(x){
 #' Sample volume, Sample injection volume, Sample row number,
 #' Sample dilution factor, or Sample barcode.
 #'
-#' @export readFileHeader
+#' @export
 #'
 #' @examples
 #' rawrr::sampleFilePath() |> readFileHeader()
@@ -236,7 +218,7 @@ readFileHeader <- function(rawfile){
 #' scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and 
 #' dependencyType of all spectra.
 #' 
-#' @export readIndex
+#' @export
 #' @importFrom utils read.table
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020, 2021
 #'
@@ -251,21 +233,10 @@ readIndex <- function (rawfile)
   .isAssemblyWorking()
   rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
-  mono <- if (Sys.info()["sysname"] %in% c("Darwin", "Linux")) 
-    TRUE
-  else FALSE
   exe <- .rawrrAssembly()
 
-  if (mono && !exists('RAWRRDOTNET')){
-    con <- textConnection(system2(Sys.which("mono"),
-                                  args = c(shQuote(exe),
-                                           shQuote(rawfile), "index"),
-                                  stdout = TRUE))
-  }
-  else {
-    con <- textConnection(system2(exe, args = c(shQuote(rawfile), 
-                                                "index"), stdout = TRUE))
-  }
+  con <- textConnection(system2(exe, args = c(shQuote(rawfile), "index"), stdout = TRUE))
+
   DF <- read.table(con, header = TRUE, comment.char = "#", sep = ";", na.strings = "-1",
                    colClasses = c("integer", "character", "numeric", "numeric", "character",
                                   "integer", "integer", "integer", "numeric"))
@@ -285,7 +256,7 @@ filter <- function(rawfile, filter = "ms", precision = 10, tmpdir=tempdir()){
   .isAssemblyWorking()
   rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
-  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+
   exe <- .rawrrAssembly()
 
   
@@ -295,21 +266,11 @@ filter <- function(rawfile, filter = "ms", precision = 10, tmpdir=tempdir()){
   
   cmd <- exe
   
-  if (exists('RAWRRDOTNET')){ mono <<- FALSE}
-  if (mono){
-    rvs <- system2(Sys.which("mono"),
-                   args = c(shQuote(exe), shQuote(rawfile),
-                            "filter", shQuote(filter), shQuote(precision),
-                            shQuote(tfo)),
-                   stderr = tfstderr,
-                   stdout=tfstdout)
-  }else{
-    rvs <- system2(exe,
+   rvs <- system2(exe,
                    args = c( shQuote(rawfile), "filter", shQuote(filter),
                              shQuote(precision), shQuote(tfo)),
                    stderr = tfstderr,
                    stdout=tfstdout)
-  }
   
   if (isFALSE(file.exists(tfo))){
     errmsg <- sprintf("Output file to read does not exist. '%s' failed for an unknown reason.
@@ -493,12 +454,6 @@ sampleFilePath <- function(){
 #'
 #' @aliases readSpectrum rawrr
 #'
-#' @export
-## #' @export readSpectrum
-## #' @exportClass rawrrSpectrum
-## #' @exportS3Method plot rawrrSpectrum
-## #' @exportS3Method print rawrrSpectrum
-## #' @exportS3Method summary rawrrSpectrum
 #'
 #' @return a nested list of \code{rawrrSpectrum} objects containing more than 50
 #' values of scan information, e.g., the charge state, two vectors containing
@@ -581,6 +536,7 @@ sampleFilePath <- function(){
 #' rawrr::readSpectrum(rawfile=rawfile, 11091) |>
 #'    lapply(function(x).UniversalSpectrumExplorer(x, sequence = GAG))
 #'  }  
+#' @export
 readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
                          validate = FALSE, mode = ''){
   .isAssemblyWorking()
@@ -625,9 +581,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
                                     filter = "ms", type='tic',
                                     tmpdir = tempdir()){
   
-  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
   exe <- .rawrrAssembly()
-
   
   tfstdout <- tempfile(fileext = ".stdout", tmpdir = tmpdir)
   tfstderr <- tempfile(fileext = ".stderr", tmpdir = tmpdir)
@@ -636,11 +590,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
   
   system2args <- c(shQuote(rawfile), "chromatogram", shQuote(filter), tfcsv)
   
-  if (mono && !exists('RAWRRDOTNET')){
-    rvs <- system2("mono", args = c(shQuote(exe), system2args), stdout=tfstdout, stderr=tfstderr)
-  }else{
-    rvs <- system2(exe, args = system2args, stdout=tfstdout, stderr=tfstderr)
-  }
+  rvs <- system2(exe, args = system2args, stdout=tfstdout, stderr=tfstderr)
   
   if (isFALSE(file.exists(tfcsv)))
   {
@@ -729,11 +679,6 @@ validate_rawrrChromatogram <- function(x){
 #' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.
 #'
 #' @export
-## #' @export readChromatogram
-## #' @exportClass rawrrChromatogram
-## #' @exportClass rawrrChromatogramSet
-## #' @exportS3Method plot rawrrChromatogram
-## #' @exportS3Method plot rawrrChromatogramSet
 #' @importFrom utils read.csv2
 #' @examples
 #'
@@ -1594,7 +1539,6 @@ readTrailer <- function(rawfile, label = NULL) {
   rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
   
-  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
   exe <- .rawrrAssembly()
 
   
@@ -1602,27 +1546,14 @@ readTrailer <- function(rawfile, label = NULL) {
   
   if (is.null(label)){
     # should return all available trailer label
-    if (mono && !exists('RAWRRDOTNET')){
-      con <- textConnection(system2(Sys.which("mono"),
-                                    args = c(shQuote(exe), shQuote(rawfile), "trailer"),
-                                    stdout = TRUE))
-    }else{
-      con <- textConnection(system2(exe,
+     con <- textConnection(system2(exe,
                                     args = c( shQuote(rawfile), "trailer"),
                                     stdout = TRUE))
-    }
   }else{
     # use case for providing a trailer label
-    if (mono && !exists('RAWRRDOTNET')){
-      con <- textConnection(system2(Sys.which("mono"),
-                                    args = c(shQuote(exe), shQuote(rawfile),
-                                             "trailer",  shQuote(label)),
-                                    stdout = TRUE))
-    }else{
-      con <- textConnection(system2(exe,
+    con <- textConnection(system2(exe,
                                     args = c(shQuote(rawfile), "trailer", shQuote(label)),
                                     stdout = TRUE))
-    }
   }
   
   scan(con, what=character(),
