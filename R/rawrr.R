@@ -196,7 +196,7 @@ is.rawrrSpectrumSet <- function(x){
 #' Sample volume, Sample injection volume, Sample row number,
 #' Sample dilution factor, or Sample barcode.
 #'
-#' @export readFileHeader
+#' @export
 #'
 #' @examples
 #' rawrr::sampleFilePath() |> readFileHeader()
@@ -218,7 +218,7 @@ readFileHeader <- function(rawfile){
 #' scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and 
 #' dependencyType of all spectra.
 #' 
-#' @export readIndex
+#' @export
 #' @importFrom utils read.table
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020, 2021
 #'
@@ -454,12 +454,6 @@ sampleFilePath <- function(){
 #'
 #' @aliases readSpectrum rawrr
 #'
-#' @export
-## #' @export readSpectrum
-## #' @exportClass rawrrSpectrum
-## #' @exportS3Method plot rawrrSpectrum
-## #' @exportS3Method print rawrrSpectrum
-## #' @exportS3Method summary rawrrSpectrum
 #'
 #' @return a nested list of \code{rawrrSpectrum} objects containing more than 50
 #' values of scan information, e.g., the charge state, two vectors containing
@@ -542,6 +536,7 @@ sampleFilePath <- function(){
 #' rawrr::readSpectrum(rawfile=rawfile, 11091) |>
 #'    lapply(function(x).UniversalSpectrumExplorer(x, sequence = GAG))
 #'  }  
+#' @export
 readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
                          validate = FALSE, mode = ''){
   .isAssemblyWorking()
@@ -684,11 +679,6 @@ validate_rawrrChromatogram <- function(x){
 #' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.
 #'
 #' @export
-## #' @export readChromatogram
-## #' @exportClass rawrrChromatogram
-## #' @exportClass rawrrChromatogramSet
-## #' @exportS3Method plot rawrrChromatogram
-## #' @exportS3Method plot rawrrChromatogramSet
 #' @importFrom utils read.csv2
 #' @examples
 #'

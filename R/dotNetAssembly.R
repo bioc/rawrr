@@ -236,15 +236,22 @@ rawrrAssemblyPath <- function(){
 #' failure. For the "wget" and "curl" methods this is the status code returned
 #' by the external program.
 #' @seealso \link{buildRawrrExe}
-#' @references \doi{10.1021/acs.jproteome.0c00866}
 #' @aliases rawrr.exe
-#' @export installRawrrExe
+#' @export
 installRawrrExe <-
   function (sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/",
             force = FALSE,
             ...) {
   rawrrAssembly <- .rawrrAssembly()
-  if (file.exists(rawrrAssembly) && isFALSE(force)){
+
+  if (isTRUE(file.exists(rawrrAssembly)) && isFALSE(force)){
+     if (interactive()){
+	message("The rawrr assembly exists. Have a lot of fun!")
+     }
+     return()
+  }
+
+  if (isTRUE(file.exists(rawrrAssembly)) && isTRUE(force)){
 	## TODO: if interactive ask to override
         if (interactive()){
             response <- readline(prompt = sprintf("Assembly exists. Do you want to overwrite it? [Y/n]: "))

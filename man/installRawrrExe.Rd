@@ -31,9 +31,6 @@ the directory provided by \code{rawrrAssemblyPath()}.
 The console application \code{rawrr} is used by the package's
 reader functions through a \link{system2} call.
 }
-\references{
-\doi{10.1021/acs.jproteome.0c00866}
-}
 \seealso{
 \link{buildRawrrExe}
 }
