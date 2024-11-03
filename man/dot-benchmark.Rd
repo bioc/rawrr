@@ -2,10 +2,10 @@
 % Please edit documentation in R/benchmark.R
 \name{.benchmark}
 \alias{.benchmark}
-\title{benchmark execution time}
+\title{f <- "/Users/cp/Library/Caches/org.R-project.R/R/ExperimentHub/46314c3933e2_4590.raw"}
 \usage{
-.benchmark(rawfile)
+.benchmark(f)
 }
 \description{
-benchmark execution time
+f <- "/Users/cp/Library/Caches/org.R-project.R/R/ExperimentHub/46314c3933e2_4590.raw"
 }

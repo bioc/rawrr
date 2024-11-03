@@ -3,7 +3,7 @@
 \name{installRawrrExe}
 \alias{installRawrrExe}
 \alias{rawrr.exe}
-\title{Download and install the \code{rawrr.exe} console application}
+\title{Download \code{rawrr} assembly}
 \usage{
 installRawrrExe(
   sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/",
@@ -24,11 +24,11 @@ failure. For the "wget" and "curl" methods this is the status code returned
 by the external program.
 }
 \description{
-downloads and installs the \code{rawrr.exe} .NET assembly in 
+downloads and installs the \code{rawrr.exe} .NET assembly in
 the directory provided by \code{rawrrAssemblyPath()}.
 }
 \details{
-The console application \code{rawrr.exe} is used by the package's
+The console application \code{rawrr} is used by the package's
 reader functions through a \link{system2} call.
 }
 \references{

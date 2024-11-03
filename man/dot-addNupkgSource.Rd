@@ -4,14 +4,12 @@
 \alias{.addNupkgSource}
 \title{dotnet nuget add source /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/
 dotnet nuget remove source "Package source 1"
-dotnet nuget list source   
-dotnet add package ThermoFisher.CommonCore.MassPrecisionEstimator}
+dotnet nuget list source}
 \usage{
 .addNupkgSource()
 }
 \description{
 dotnet nuget add source /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/
 dotnet nuget remove source "Package source 1"
-dotnet nuget list source   
-dotnet add package ThermoFisher.CommonCore.MassPrecisionEstimator
+dotnet nuget list source
 }

@@ -22,21 +22,6 @@ by the external program.
 \description{
 Download and install the Thermo Fisher Scientific .NET 8.0 nupkgs
 }
-\details{
-The console application assembly \code{rawrr.exe} requires:
-\itemize{
-\item {\code{ThermoFisher.CommonCore.Data.dll}, }
-\item{\code{ThermoFisher.CommonCore.MassPrecisionEstimator.dll}, and}
-\item{ThermoFisher.CommonCore.RawFileReader.dll}
-}.
-}
-\references{
-\itemize{
-  \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
-  \item{\url{https://planetorbitrap.com/rawfilereader}}
-  \item{\doi{10.1021/acs.jproteome.0c00866}}
-}
-}
 \author{
 Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
 }
