@@ -1,6 +1,7 @@
 #R
 
-#' f <- "/Users/cp/Library/Caches/org.R-project.R/R/ExperimentHub/46314c3933e2_4590.raw"
+#' @importFrom utils object.size
+# f <- "/Users/cp/Library/Caches/org.R-project.R/R/ExperimentHub/46314c3933e2_4590.raw"
 .benchmark <- function(f){
    stopifnot(file.exists(f))
 

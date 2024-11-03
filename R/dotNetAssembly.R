@@ -142,9 +142,9 @@ rawrrAssemblyPath <- function(){
     rv
   }
 
-#' dotnet nuget add source /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/
-#' dotnet nuget remove source "Package source 1"
-#' dotnet nuget list source
+# dotnet nuget add source /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/
+# dotnet nuget remove source "Package source 1"
+# dotnet nuget list source
 .addNupkgSource <- function(){
   system2('dotnet', args = c('nuget', 'add', 'source', rawrrAssemblyPath()))
 }
@@ -163,7 +163,7 @@ rawrrAssemblyPath <- function(){
   })
 }
 
-#' dotnet add package ThermoFisher.CommonCore.MassPrecisionEstimator
+# dotnet add package ThermoFisher.CommonCore.MassPrecisionEstimator
 .addPackages <- function(dir, version = "8.0.6"){
   tempOut <- tempfile(pattern = "rawrr.add.packages.stdout.", tmpdir = dir, fileext = ".txt")
   tempErr <- tempfile(pattern = "rawrr.add.packages.stderr.", tmpdir = dir, fileext = ".txt")
@@ -188,8 +188,8 @@ rawrrAssemblyPath <- function(){
 }
 
 .clean <- function(){
-  message("Removing ", rawrr:::.rawrrAssembly())
-  file.remove(rawrr:::.rawrrAssembly())
+  message("Removing ", .rawrrAssembly())
+  file.remove(.rawrrAssembly())
 }
 
 .build <- function(dir){
@@ -204,7 +204,7 @@ rawrrAssemblyPath <- function(){
   message("Write stderr to", tempErr)
 
   system2('dotnet', args = c('publish', '-c', 'Release', '-a', 'x64', '-p',
-    'PublishReadyToRun=true', '-o', dirname(rawrr:::.rawrrAssembly())),
+    'PublishReadyToRun=true', '-o', dirname(.rawrrAssembly())),
     stdout = tempOut,
     stderr = tempErr) -> rv
 
@@ -314,21 +314,14 @@ installRawrrExe <-
 #' .NET SDK. The console application \code{rawrr.exe}
 #' is used by the package's reader functions through a \link{system2} call
 #' or a \link{textConnection}.
+#' 
+#' To use this function, ensure that the local RawFileReader NuGet packages 
+#' are added to the NuGet source list. You can accomplish this by 
+#' downloading the necessary packages with 
+#' \code{rawrr:::.downloadNupkgs()} and subsequently running 
+#' \code{rawrr:::.addNupkgSource()}.
 #'
-#' @details The rawrr package implementation consists of two language layers,
-#' the top R layer and the hidden C# layer. Specifically, R functions requesting
-#' access to data stored in binary raw files invoke compiled C# wrapper methods
-#' using a \link{system2} call. Calling a wrapper method typically results in the
-#' execution of methods defined in the RawFileReader dynamic link library
-#' provided by Thermo Fisher Scientific. Our precompiled wrapper methods are
-#' bundled in the \code{rawrr.exe} executable file (.NET assembly) and shipped
-#' with the released R package.
-#' Our package also contains the C# source code \code{rawrr.cs}.
-#' In order to return extracted data back to the R layer we use file I/O.
-#' More specifically, the extracted information is written to a temporary
-#' location on the harddrive, read back into memory and parsed into R objects.
-#'
-#' @author Tobias Kockmann, Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
+#' @author Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
 #'
 #' @seealso \link{installRawrrExe}
 #'
@@ -362,9 +355,20 @@ buildRawrrExe <- function(){
 
   .copySourceCode(dir = buildDir)
 
-  ## TODO: check if already exists
-  # .downloadNupkgs()
-  # .addNupkgSource()
+  (system2("dotnet", args =c('nuget', 'list', 'source'),
+    stdout = TRUE) |>
+    grepl(pattern = "rawrrassembly") |>
+    sum()  >= 1) -> nugetPkgsPresent
+
+  if(nugetPkgsPresent){
+    warning("Have you downloaded the 'thermofisherlsms/RawFileReader' NuGet packages? \n",
+    "If not, please consider executing the methods:\n",
+    "  -> rawrr:::.downloadNupkgs()\n",
+    "  -> rawrr:::.addNupkgSource()\n",
+    "These steps should be performed once to ensure proper setup.")
+    # .downloadNupkgs()
+    # .addNupkgSource()
+  }
 
   .addPackages(dir = buildDir)
   .build(dir = buildDir)
