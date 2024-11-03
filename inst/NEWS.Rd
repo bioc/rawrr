@@ -3,7 +3,14 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
-\section{Changes in version 1.10.2 (Unreleased)}{
+\section{Changes in version 1.15.x (Unreleased)}{
+  \itemize{
+    \item Add Leo as author.
+    \item Replace `mono` with `dotnet`; Introduced a statically linked runtime `rawrr` assembly for Windows, Linux, and macOS on x64 architectures, streamlining installation and usage.
+  }
+}
+
+\section{Changes in version 1.10.2}{
   \itemize{
     \item Consistently normalize paths \ghit{76}.
   }
