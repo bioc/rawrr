@@ -1,0 +1,93 @@
+name: CD RawrrAssembly
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+env:
+  DOTNET_DOCKER: mcr.microsoft.com/dotnet/sdk:8.0
+jobs:
+  build:
+    name: Build Assembly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull image
+        run: docker pull $DOTNET_DOCKER
+      - name: Build
+        run: cd inst/rawrrassembly && docker run --rm -v $PWD:/app -w /app $DOTNET_DOCKER /app/build.sh /app /app/out
+      - name: Publish results
+        uses: actions/upload-artifact@v4
+        with:
+          name: rawrr
+          path: inst/rawrrassembly/out
+          retention-days: 1
+  verify-linux:
+    name: Verify on Linux
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: rawrr
+      - name: List result
+        run: tree
+      - name: Make executable
+        run: chmod +x rawrr-linux-x64
+      - name: Execute on test file
+        run: ./rawrr-linux-x64 ./inst/extdata/sample.raw index
+  verify-windows:
+    name: Verify on Windows
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: rawrr
+      - name: List result
+        run: dir
+      - name: Execute on test file
+        run: .\rawrr-win-x64.exe .\inst\extdata\sample.raw index
+  verify-macos:
+    name: Verify on MacOS
+    runs-on: macos-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: rawrr
+      - name: List result
+        run: ls -l
+      - name: Make executable
+        run: chmod +x rawrr-osx-x64
+      - name: Execute on test file
+        run: ./rawrr-osx-x64 ./inst/extdata/sample.raw index
+  upload-release-artifacts:
+    name: Upload Release Artifacts
+    runs-on: ubuntu-latest
+    needs:
+      - verify-linux
+      - verify-windows
+      - verify-macos
+    if: github.event_name == 'release'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: rawrr
+          path: dist
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/rawrr-linux-x64
+            dist/rawrr-win-x64.exe
+            dist/rawrr-osx-x64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
