@@ -2,7 +2,7 @@ name: CD RawrrAssembly
 on:
   workflow_dispatch:
   release:
-    types: [created]
+    types: [published]
 env:
   DOTNET_DOCKER: mcr.microsoft.com/dotnet/sdk:8.0
 jobs:
