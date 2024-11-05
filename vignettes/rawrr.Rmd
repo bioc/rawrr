@@ -314,18 +314,18 @@ The R script that renders the html page is also available as supplementary infor
 
 ## Benchmark
 
-```{r benchmark, message = FALSE, fig.cap="Runtime benchmark using `.rawrr::readSpectrum`.", fig.small=TRUE}
+```{r benchmark, message = FALSE, fig.cap="`.rawrr::readSpectrum` spectra per second.", fig.small=TRUE}
 seq(1, 4) |>
     lapply(FUN=function(x){rawrr::sampleFilePath() |>
         rawrr:::.benchmark()}) |>
     Reduce(f=rbind) -> S
 
-boxplot(runTimeInSec ~ count,
+boxplot(count / runTimeInSec ~ count,
   data = S,
   log ='y',
   sub = paste0("Overall runtime took ", round(sum(S$runTimeInSec), 3), " seconds."),
   xlab = 'number of random generated scan ids')
-legend("topleft",  Sys.info()['nodename'], cex = 1)
+legend("topleft",  c(Sys.info()['nodename'], Sys.info()['sysname']), cex = 1)
 ```
 
 # Conclusions

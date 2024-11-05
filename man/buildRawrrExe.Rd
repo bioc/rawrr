@@ -14,20 +14,12 @@ builds \code{rawrr.exe} file from C# source code requiring
 .NET SDK. The console application \code{rawrr.exe}
 is used by the package's reader functions through a \link{system2} call
 or a \link{textConnection}.
-}
-\details{
-The rawrr package implementation consists of two language layers,
-the top R layer and the hidden C# layer. Specifically, R functions requesting
-access to data stored in binary raw files invoke compiled C# wrapper methods
-using a \link{system2} call. Calling a wrapper method typically results in the
-execution of methods defined in the RawFileReader dynamic link library
-provided by Thermo Fisher Scientific. Our precompiled wrapper methods are
-bundled in the \code{rawrr.exe} executable file (.NET assembly) and shipped
-with the released R package.
-Our package also contains the C# source code \code{rawrr.cs}.
-In order to return extracted data back to the R layer we use file I/O.
-More specifically, the extracted information is written to a temporary
-location on the harddrive, read back into memory and parsed into R objects.
+
+To use this function, ensure that the local RawFileReader NuGet packages 
+are added to the NuGet source list. You can accomplish this by 
+downloading the necessary packages with 
+\code{rawrr:::.downloadNupkgs()} and subsequently running 
+\code{rawrr:::.addNupkgSource()}.
 }
 \references{
 \itemize{
@@ -42,5 +34,5 @@ location on the harddrive, read back into memory and parsed into R objects.
 \link{installRawrrExe}
 }
 \author{
-Tobias Kockmann, Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
+Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
 }
