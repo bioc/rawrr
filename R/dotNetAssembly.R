@@ -51,27 +51,6 @@ rawrrAssemblyPath <- function(){
 }
 
 
-## TODO: refactor
-.checkRawFileReaderDLLs <- function(FUN=stop){
-  rv <- vapply(.rawfileReaderDLLs(), function(dll){
-    userFileDllPath <- file.path(rawrrAssemblyPath(), dll)
-    dllExists <- file.exists(userFileDllPath)
-    if (isFALSE(dllExists)){
-      message(sprintf("'%s' is missing.", dll))
-    }
-    return(dllExists)
-  }, FALSE)
-
-  if (isFALSE(all(rv)) && TRUE){
-    FUN("'ThermoFisher.CommonCore.*.dll' files are not available on the system.\n",
-         "Run 'rawrr::installRawFileReaderDLLs()' or setenv MONO_PATH to ",
-         "the location where the assemblies are located.\n",
-         "For more information, type '?ThermoFisher'.")
-  }
-  all(rv)
-}
-
-
 #' @importFrom tools R_user_dir
 .rawrrAssembly <- function(){
   libdir <- tools::R_user_dir("rawrr", which='cache')
