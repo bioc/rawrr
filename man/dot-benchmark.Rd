@@ -4,17 +4,24 @@
 \alias{.benchmark}
 \title{Benchmark spectra per second}
 \usage{
-.benchmark(f)
+.benchmark(rawfile)
+}
+\arguments{
+\item{rawfile}{the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.}
 }
 \description{
 Benchmark spectra per second
 }
 \examples{
 sampleFilePath() |> rawrr:::.benchmark() -> S
-plot (count / S$runTimeInSec ~ count, log='xy', data=S,
+
+plot (count / runTimeInSec ~ count,
+  log='xy',
+  data=S,
   sub = paste0("Overall runtime took ", round(sum(S$runTimeInSec), 3), " seconds."),
-  xlab = 'number of random generated scan ids')
+  xlab = 'number of random generated scan ids',
   main = "benchmark spectra per second")
+
 }
 \author{
 Christian Panse 2024-11-05
