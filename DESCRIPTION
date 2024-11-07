@@ -34,7 +34,7 @@ Description: This package wraps the functionality of the
     The package is developed, tested, and used at the Functional
     Genomics Center Zurich, Switzerland.
 License: GPL-3
-SystemRequirements: .NET 8.0 
+SystemRequirements: .NET 8.0 (optional; required only if you want to compile and link the C# code)
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
