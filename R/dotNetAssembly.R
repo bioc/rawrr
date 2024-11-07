@@ -199,6 +199,13 @@ rawrrAssemblyPath <- function(){
   }
 }
 
+
+#' deprecated installRawFileReaderDLLs
+#' @export
+installRawFileReaderDLLs <- function(){
+  .Deprecated("installRawrrExe", msg = "Deprecated since rawrr version 1.15.3.")
+}
+
 #' Download \code{rawrr} assembly
 #'
 #' @description downloads and installs the \code{rawrr.exe} .NET assembly in
