@@ -200,7 +200,12 @@ rawrrAssemblyPath <- function(){
 }
 
 
-#' deprecated installRawFileReaderDLLs
+#' installRawFileReaderDLLs (deprecated)
+#'
+#' Download and install the New RawFileReader from Thermo Fisher
+#' Scientific .Net assemblies in the directory provided by
+#' \code{rawrrAssemblyPath()}.
+#'
 #' @export
 installRawFileReaderDLLs <- function(){
   .Deprecated("installRawrrExe", msg = "Deprecated since rawrr version 1.15.3.")
