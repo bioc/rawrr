@@ -314,7 +314,7 @@ The R script that renders the html page is also available as supplementary infor
 
 ## Benchmark
 
-```{r benchmark, message = FALSE, fig.cap="`.rawrr::readSpectrum` spectra per second.", fig.small=TRUE}
+```{r benchmark, message = FALSE, fig.cap="`rawrr:::.benchmark using rawrr::readSpectrum` spectra per second.", fig.small=TRUE}
 set.seed(1)
 seq(1, 4) |>
     lapply(FUN=function(x){rawrr::sampleFilePath() |>
