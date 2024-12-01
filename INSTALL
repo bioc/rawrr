@@ -57,6 +57,7 @@ dotnet publish rawrr-dotnet.csproj --os linux -a x64 --output /Users/cp/Library/
 ## generates a ~110MB BLOB
 dotnet publish -c Release -r linux-x64 -p PublishReadyToRun=true
 dotnet publish -c Release -r win-x64 -p PublishReadyToRun=true
+dotnet publish -c Release -r osx-x64 -p PublishReadyToRun=true
 ```
 
 
@@ -66,8 +67,7 @@ The `Dockerfile` performing `R CMD build` and `R CMD check` requires
 
 ```
 from bioconductor/bioconductor_docker:devel
-run apt-get update && apt-get install mono-mcs mono-xbuild -y
-run apt-get install dotnet-sdk-8.0
+run apt-get update && apt-get install dotnet-sdk-8.0 -y
 run R -q -e "BiocManager::install(c('BiocStyle', 'ExperimentHub', 'knitr', 'protViz', 'rmarkdown', 'tartare', 'testthat'))"
 ```
 
