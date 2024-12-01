@@ -457,9 +457,15 @@
 			    else
                                 file.WriteLine("\tmonoisotopicMz = NA,");
 
+                            // file.WriteLine("## DEBUG indexCharge={0} {1}", indexCharge, scanTrailer.Values.ToArray()[indexCharge]);
 
-			    if (indexCharge > 0)
+			    if (indexCharge > 0){
+		              try{
                                 file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+		              } catch {
+                                file.WriteLine("\tcharge = NA,");
+		              }
+			    }
 			    else
                                 file.WriteLine("\tcharge = NA,");
 
