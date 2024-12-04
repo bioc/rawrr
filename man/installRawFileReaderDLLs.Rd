@@ -2,10 +2,12 @@
 % Please edit documentation in R/dotNetAssembly.R
 \name{installRawFileReaderDLLs}
 \alias{installRawFileReaderDLLs}
-\title{deprecated installRawFileReaderDLLs}
+\title{installRawFileReaderDLLs (deprecated)}
 \usage{
 installRawFileReaderDLLs()
 }
 \description{
-deprecated installRawFileReaderDLLs
+Download and install the New RawFileReader from Thermo Fisher
+Scientific .Net assemblies in the directory provided by
+\code{rawrrAssemblyPath()}.
 }
