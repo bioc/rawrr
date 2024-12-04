@@ -1,9 +1,9 @@
 #R
     
 .onLoad <- function(lib, pkg){
-  if(interactive()){
-    .buildOnLoad()
-   }
+  #if(interactive()){
+  # .buildOnLoad()
+  # }
 }
 
 #' @importFrom utils packageVersion
