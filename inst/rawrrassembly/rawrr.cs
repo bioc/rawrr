@@ -339,6 +339,8 @@
 
                         if (scanStatistics.IsCentroidScan && centroidStream.Length > 0)
                         {
+                                file.WriteLine("\tcentroidScan.mZ = c(" + string.Join(", ", scan.CentroidScan.Masses.ToArray()) + "),");
+                                file.WriteLine("\tcentroidScan.intensity = c(" + string.Join(", ", scan.CentroidScan.Intensities.ToArray()) + "),");
                         	file.WriteLine("\tmZ = c(" + string.Join(", ", centroidStream.Masses) + "),");
                                 file.WriteLine("\tintensity = c(" + string.Join(", ", centroidStream.Intensities) + ")");
 			} else{

@@ -7,15 +7,15 @@ if [ "$#" -ne 2 ]; then
 fi
 project_folder="$1"
 output_folder="$2"
-work_folder="/tmp/build"
+work_folder="/tmp/rawrr-build-$(date +'%Y-%m-%d-%H-%M')"
 
 # debug: 
 #apt-get update && apt-get upgrade -y && apt-get install -y zip tree
 
 # Checkout the deps
-mkdir /tmp/build-dir && cd /tmp/build-dir
+mkdir $work_folder && cd $work_folder
 git clone --depth=1 https://github.com/thermofisherlsms/RawFileReader.git
-dotnet nuget add source "$PWD"/RawFileReader/Libs/NetCore/Net8/
+#dotnet nuget add source "$PWD"/RawFileReader/Libs/NetCore/Net8/
 
 # Perform the release
 cp -r "$project_folder" "$work_folder"
